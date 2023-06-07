@@ -1,0 +1,40 @@
+[tool.poetry]
+# Project Metadata
+name = "pusher-client"
+version = "0.1.0"
+description = "This is a brief description of the Pusher client project."
+authors = ["Christian <contact@komodo.link>"]
+readme = "README.md"
+packages = [{ include = "pusher_client" }]
+
+# Core Dependencies
+[tool.poetry.dependencies]
+python = "^3.8"
+
+# Group: Library Dependencies
+# This section includes the libraries that are essential for the project
+[tool.poetry.group.lib.dependencies]
+aiohttp = "^3.8.4"
+
+# Group: Library Test Dependencies
+# This section is for testing with different versions of the library dependencies
+[tool.poetry.group.lib-test.dependencies]
+aiohttp = "^3.7.0"
+# This indicates that the lib-test dependencies are optional
+[tool.poetry.group.lib-test]
+optional = true
+
+# Group: Development Dependencies
+# This section includes the tools needed for development, they are not installed during testing
+[tool.poetry.group.dev.dependencies]
+nox = "^2023.4.22"
+
+# Group: Testing Dependencies
+# This section includes the tools that are installed and used during the testing phase
+[tool.poetry.group.test.dependencies]
+pytest = "^7.3.1"
+
+# Build System Specifications
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
