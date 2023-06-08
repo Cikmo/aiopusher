@@ -1,8 +1,8 @@
 # aiopusher
 
 [![PyPI](https://img.shields.io/pypi/v/aiopusher)](https://pypi.org/project/aiopusher/)
-[![Supported Python versions](https://img.shields.io/pypi/pyversions/pusher-client.svg)](https://pypi.org/project/pusher-client/)
-[![check](https://github.com/tox-dev/tox/actions/workflows/check.yml/badge.svg)](https://github.com/pusher-client/actions/workflows/check.yml)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/aiopusher.svg)](https://pypi.org/project/aiopusher/)
+[![check](https://github.com/Cikmo/aiopusher/actions/workflows/tests.yml/badge.svg)](https://github.com/Cikmo/aiopusher/actions/workflows/tests.yml/)
 
 An async library for subscribing to the Pusher WebSocket protocol.
 

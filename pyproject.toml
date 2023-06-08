@@ -5,8 +5,8 @@ description = "An async client for Pusher. Currently in development. Is unusable
 authors = ["Christian <contact@komodo.link>"]
 readme = "README.md"
 license = "MIT"
-homepage = "https://github.com/Cikmo/pusher-client"
-repository = "https://github.com/Cikmo/pusher-client"
+homepage = "https://github.com/Cikmo/aiopusher"
+repository = "https://github.com/Cikmo/aiopusher"
 packages = [{ include = "aiopusher" }]
 
 
