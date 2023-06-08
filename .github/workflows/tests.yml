@@ -28,13 +28,13 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
 
-    - name: Cache Poetry
+    - name: Cache Dependencies
       uses: actions/cache@v3
       with:
         path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        key: ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          ${{ runner.os }}-poetry-
+          ${{ runner.os }}-poetry-${{ matrix.python-version }}-
 
     - name: Install dependencies
       run: poetry install
