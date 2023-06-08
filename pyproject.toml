@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "pusher-client"
 version = "0.1.0"
-description = "This is a brief description of the Pusher client project."
+description = "An async client for Pusher."
 authors = ["Christian <contact@komodo.link>"]
 readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/Cikmo/pusher-client"
+repository = "https://github.com/Cikmo/pusher-client"
 packages = [{ include = "pusher_client" }]
 
 
