@@ -1,2 +1,6 @@
+"""This is a test file for testing the testing framework."""
+
+
 def test_blah():
-    assert 1 == 1
+    """Test for testing purposes."""
+    assert True
