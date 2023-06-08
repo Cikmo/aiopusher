@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pusher-client"
+name = "aiopusher"
 version = "0.1.0"
 description = "An async client for Pusher. Currently in development. Is unusable at the moment."
 authors = ["Christian <contact@komodo.link>"]
@@ -7,7 +7,7 @@ readme = "README.md"
 license = "MIT"
 homepage = "https://github.com/Cikmo/pusher-client"
 repository = "https://github.com/Cikmo/pusher-client"
-packages = [{ include = "pusher_client" }]
+packages = [{ include = "aiopusher" }]
 
 
 # Core Dependencies

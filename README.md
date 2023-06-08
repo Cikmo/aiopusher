@@ -1,6 +1,6 @@
-# pusher-client
+# aiopusher
 
-[![PyPI](https://img.shields.io/pypi/v/pusher-client)](https://pypi.org/project/pusher-client/)
+[![PyPI](https://img.shields.io/pypi/v/aiopusher)](https://pypi.org/project/aiopusher/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/pusher-client.svg)](https://pypi.org/project/pusher-client/)
 [![check](https://github.com/tox-dev/tox/actions/workflows/check.yml/badge.svg)](https://github.com/pusher-client/actions/workflows/check.yml)
 
@@ -8,25 +8,25 @@ An async library for subscribing to the Pusher WebSocket protocol.
 
 ## Installation
 
-You can install `pusher-client` via pip from PyPI:
+You can install `aiopusher` via pip from PyPI:
 
 ```bash
-pip install pusher-client
+pip install aiopusher
 ```
 
 Or with [Poetry](https://python-poetry.org/):
 
 ```bash
-poetry add pusher-client
+poetry add aiopusher
 ```
 
 ## Usage
 
-Here are some examples of using `pusher-client`:
+Here are some examples of using `aiopusher`:
 
 ```python
 import asyncio
-from pusher_client import Pusher
+from aiopusher import Pusher
 
 async def main():
     async with Pusher('<your-app-key>') as client:
@@ -60,7 +60,7 @@ async def main():
 
 ```python
 import asyncio
-from pusher_client import Pusher
+from aiopusher import Pusher
 
 client = Pusher('<your-app-key>')
 
@@ -82,7 +82,7 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from pusher_client import Pusher
+from aiopusher import Pusher
 
 async def main():
     options = {
@@ -108,7 +108,7 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from pusher_client import Pusher, SingletonClient
+from aiopusher import Pusher, SingletonClient
 
 async def main():
     client = Pusher('<your-app-key>')
