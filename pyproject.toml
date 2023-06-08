@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pusher-client"
 version = "0.1.0"
-description = "An async client for Pusher."
+description = "An async client for Pusher. Currently in development. Is unusable at the moment."
 authors = ["Christian <contact@komodo.link>"]
 readme = "README.md"
 license = "MIT"
