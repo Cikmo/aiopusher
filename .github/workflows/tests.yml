@@ -1,4 +1,4 @@
-name: Run tests and lint
+name: Checks
 
 on:
   push:
@@ -43,4 +43,4 @@ jobs:
       run: poetry run pytest ./tests
     
     - name: Run Lint
-      run: poetry run pylint ./src/ ./tests noxfile.py
+      run: poetry run pylint ./src ./tests noxfile.py

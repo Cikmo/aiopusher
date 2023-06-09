@@ -9,34 +9,32 @@ homepage = "https://github.com/Cikmo/aiopusher"
 repository = "https://github.com/Cikmo/aiopusher"
 packages = [{ include = "aiopusher", from = "src" }]
 
-# Core Dependencies
+
 [tool.poetry.dependencies]
 python = "^3.8"
 
-# Group: Library Dependencies
-# This section includes the libraries that are essential for the project
+
 [tool.poetry.group.lib.dependencies]
 aiohttp = "^3.8.4"
 
-# Group: Development Dependencies
-# This section includes the tools needed for development
+
 [tool.poetry.group.dev.dependencies]
 nox = "^2023.4.22"
 black = "^23.3.0"
 pylint = "^2.17.4"
+pyright = "^1.1.313"
 
 
-# Group: Testing Dependencies
-# This section includes the tools that are installed and used during the testing phase
 [tool.poetry.group.test.dependencies]
 pytest = "^7.3.1"
-
-
-# Set the path to the source code for pytest
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.pyright]
+include = ["./src", "./tests"]
+typeCheckingMode = "strict"

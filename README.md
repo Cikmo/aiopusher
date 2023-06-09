@@ -124,11 +124,5 @@ async def main():
 
 ---
 
-## Development
-To get started with development, you can clone the repository and install the dependencies. [Poetry](https://python-poetry.org/) is used to manage the dependencies, so you can install it with `pip install poetry` (or follow the instructions on the Poetry website) and then run `poetry install` to install the dependencies.
-
-
-## Testing
-If you want to run the tests locally, it should be known that the tests require multiple python versions to be installed. The easiest way to do this is to use [pyenv](https://github.com/pyenv/pyenv).
-
-Once you have pyenv installed, you can run `pyenv install` to install the required versions of python (as specified in the `.python-version` file). Then, you can run `nox` to run the tests.
+## Contributing
+If you want to contribute to this project, please read [CONTRIBUTING.md](CONTRIBUTING.md).
