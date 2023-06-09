@@ -12,9 +12,7 @@ packages = [{ include = "aiopusher", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-
-
-[tool.poetry.group.lib.dependencies]
+typing-extensions = ">=4.6.3"
 aiohttp = "^3.8.4"
 
 
@@ -38,3 +36,4 @@ pythonpath = ["src"]
 [tool.pyright]
 include = ["./src", "./tests"]
 typeCheckingMode = "strict"
+pythonVersion = "3.8"
