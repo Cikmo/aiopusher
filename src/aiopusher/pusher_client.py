@@ -1,15 +1,9 @@
 """Defines the PusherClient class."""
 
-from dataclasses import dataclass, fields
+from __future__ import annotations
+from dataclasses import fields
 from typing import Optional, Any
-
-
-@dataclass
-class PusherClientOptions:
-    """A typed dict of the options."""
-
-    host: str = "ws.pusherapp.com"
-    port: int = 443
+from .options import PusherClientOptions
 
 
 class PusherClient:
