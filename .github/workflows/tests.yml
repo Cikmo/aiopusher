@@ -44,3 +44,9 @@ jobs:
     
     - name: Run Lint
       run: poetry run pylint ./src ./tests noxfile.py
+    
+    - name: Run Type Check
+      run: poetry run pyright
+    
+    - name: Run Black
+      run: poetry run black ./src ./tests noxfile.py --check
