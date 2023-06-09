@@ -1,6 +1,6 @@
 """This is a test file for testing the testing framework."""
 
-from aiopusher import __version__
+import aiopusher
 
 
 def test_blah():
@@ -10,4 +10,4 @@ def test_blah():
 
 def test_version():
     """Test version."""
-    assert __version__() == "0.1.0"
+    assert aiopusher.__version__ == "0.1.0"
