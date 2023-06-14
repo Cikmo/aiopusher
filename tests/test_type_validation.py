@@ -25,7 +25,7 @@ def test_validate_type_with_unmatching_types():
 
 def test_validate_type_with_matching_union_types():
     type_hint = Union[int, str]
-    
+
     _type_validation.validate_type(10, type_hint)
     _type_validation.validate_type('test', type_hint)
 
