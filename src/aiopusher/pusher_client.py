@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Union, get_args, get_origin
+from typing import Any
 
 from typing_extensions import Self
+
+from . import _type_validation
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +46,9 @@ class PusherClientOptions:
         Returns:
             Self: The PusherClientOptions.
         """
-        # validate type of all options
         for key, value in options.items():
             if (type_hint := cls.__annotations__.get(key)) is not None:
-                validate_type(value, type_hint)
+                _type_validation.validate_type(value, type_hint)
         return cls(**options)
 
 
@@ -106,22 +107,3 @@ class PusherClient:
 
     async def unsubscribe(self, channel_name: str) -> None:
         """Unsubscribe from a channel."""
-
-
-def validate_type(value: Any, type_hint: Any):
-    """Validate the type of a value.
-
-    Args:
-        value (Any): The value to validate.
-        type_hint (Any): The type hint to validate against.
-
-    Raises:
-        TypeError: If the type of the value does not match the type hint.
-        TypeError: If the type hint is not a valid type hint.
-    """
-    if get_origin(type_hint) is Union:
-        allowed_types = get_args(type_hint)
-        if not isinstance(value, allowed_types):
-            raise TypeError(f"Expected {allowed_types}, got {type(value)}")
-    elif not isinstance(value, type_hint):  # pylint: disable=confusing-consecutive-elif
-        raise TypeError(f"Expected {type_hint}, got {type(value)}")
