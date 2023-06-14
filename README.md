@@ -40,7 +40,7 @@ async def main():
 asyncio.run(main())
 ```
 
-#### Or, if you don't want to use context manager, you can use `connect` and `disconnect` methods:
+Or, if you don't want to use context manager, you can use `connect` and `disconnect` methods
 
 ```python
 async def main():
@@ -56,7 +56,7 @@ async def main():
     await client.disconnect() # Yes, I know this cannot technically be reached
 ```
 
-#### You can also use decorators to bind events:
+You can also use decorators to bind events
 
 ```python
 import asyncio
@@ -78,7 +78,7 @@ async def main():
 asyncio.run(main())
 ```
 
-#### Connect to different endpoints:
+Connect to different endpoints
 
 ```python
 import asyncio
@@ -104,7 +104,7 @@ async def main():
 asyncio.run(main())
 ```
 
-#### You can also make a singleton client, which can be accessed from anywhere in your code:
+You can also make a singleton client, which can be accessed from anywhere in your code
 
 ```python
 import asyncio
@@ -125,4 +125,5 @@ async def main():
 ---
 
 ## Contributing
+
 If you want to contribute to this project, please read [CONTRIBUTING.md](CONTRIBUTING.md).
