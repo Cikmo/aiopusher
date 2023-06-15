@@ -12,6 +12,8 @@ from . import _type_validation
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["PusherClient", "PusherClientOptions"]
+
 
 @dataclass
 class PusherClientOptions:

@@ -2,6 +2,8 @@
 
 from typing import Any, Union, get_args, get_origin
 
+__all__ = ["validate_type"]
+
 
 def validate_type(value: Any, type_hint: type):
     """Validate the type of a value. Raises TypeError if the type does not match.
