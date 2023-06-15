@@ -9,6 +9,7 @@ from typing import Any
 from typing_extensions import Self
 
 from . import _type_validation
+from . import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +30,9 @@ class PusherClientOptions:
     user_data: dict[str, str] | None = None
     log_level: int = logging.INFO
     daemon: bool = True
-    port: int = 443
     reconnect_interval: int = 10
     custom_host: str | None = None
+    port: int | None = None
     auto_sub: bool = False
     http_proxy_host: str | None = None
     http_proxy_port: int = 0
@@ -77,8 +78,21 @@ class PusherClient:
         if options is None:
             options = PusherClientOptions()
 
+        self._validate_options(options)
+
+        if options.cluster:
+            self.host = f"ws-{options.cluster}.pusher.com"
+
         self.app_key = app_key
         self.options = options
+
+        self.channels = {}
+        self.url = self._build_url()
+
+        # if auto_sub:
+        #     reconnect_handler = self._reconnect_handler
+        # else:
+        #     reconnect_handler = None
 
     # --- Boilerplate ---
 
@@ -109,3 +123,38 @@ class PusherClient:
 
     async def unsubscribe(self, channel_name: str) -> None:
         """Unsubscribe from a channel."""
+
+    def _validate_options(self, options: PusherClientOptions) -> None:
+        if options.secure and options.port is not None and options.port != 443:
+            raise ValueError("Port must be 443 when secure is True")
+        if not options.secure and options.port is not None and options.port == 443:
+            raise ValueError("Port must not be 443 when secure is False")
+
+        if (options.http_proxy_host and not options.http_proxy_port) or (
+            options.http_proxy_auth and not options.http_proxy_port
+        ):
+            raise ValueError(
+                "http_proxy_port must be specified when http_proxy_host or http_proxy_auth is set"
+            )
+
+        if (not options.http_proxy_host and options.http_proxy_port) or (
+            options.http_proxy_auth and not options.http_proxy_host
+        ):
+            raise ValueError(
+                "http_proxy_host must be specified when http_proxy_port or http_proxy_auth is set"
+            )
+
+    def _build_url(self):
+        # path = "/app/{}?client={}&version={}&protocol={}".format(
+        #     self.key, self.client_id, VERSION, self.protocol
+        # )
+
+        path = f"/app/{self.app_key}?client={self.client_id}&version={__version__}&protocol={self.protocol}"
+
+        proto = "wss" if self.options.secure else "ws"
+
+        host = self.options.custom_host or self.host
+        if not self.options.port:
+            self.options.port = 443 if self.options.secure else 80
+
+        return f"{proto}://{host}:{self.options.port}{path}"
