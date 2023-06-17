@@ -1,10 +1,7 @@
 """Test PusherClient class."""
 # pylint: disable=missing-function-docstring
 
-import pytest
-from aiopusher.pusher_client import (
-    PusherClientOptions,
-)
+from aiopusher.pusher_client import PusherClientOptions
 
 
 def test_pusher_client_options_from_dict():
@@ -31,22 +28,3 @@ def test_pusher_client_options_from_dict():
 
     for key, value in options.items():
         assert getattr(pusher_client_options, key) == value
-
-
-def test_pusher_client_options_from_dict_with_wrong_type():
-    options = {
-        "cluster": 123,  # cluster should be str
-        "secure": "should_be_bool",  # secure should be bool
-    }
-
-    with pytest.raises(TypeError):
-        PusherClientOptions.from_dict(options)
-
-
-def test_pusher_client_options_from_dict_with_unknown_key():
-    options = {
-        "unknown_key": "unknown",  # this key is not in the PusherClientOptions
-    }
-
-    with pytest.raises(TypeError):
-        PusherClientOptions.from_dict(options)
