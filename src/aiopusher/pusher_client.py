@@ -8,8 +8,7 @@ from typing import Any
 
 from typing_extensions import Self
 
-from . import _type_validation
-from . import __version__
+from . import __version__, _type_validation
 
 logger = logging.getLogger(__name__)
 
@@ -145,9 +144,9 @@ class PusherClient:
             )
 
     def _build_url(self):
-        # path = "/app/{}?client={}&version={}&protocol={}".format(
-        #     self.key, self.client_id, VERSION, self.protocol
-        # )
+        """Build the connection URL."""
+
+        # Example URL: ws://ws-ap1.pusher.com:80/app/APP_KEY?client=js&version=7.0.3&protocol=5
 
         path = f"/app/{self.app_key}?client={self.client_id}&version={__version__}&protocol={self.protocol}"
 
