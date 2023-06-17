@@ -1,7 +1,7 @@
 """Test PusherClient class."""
 # pylint: disable=missing-function-docstring
 
-from aiopusher.pusher_client import PusherClientOptions
+from aiopusher.pusher_client import PusherClientOptions, PusherClient
 
 
 def test_pusher_client_options_from_dict():
@@ -28,3 +28,13 @@ def test_pusher_client_options_from_dict():
 
     for key, value in options.items():
         assert getattr(pusher_client_options, key) == value
+
+    client = PusherClient("my_key", options=pusher_client_options)
+
+    assert client.options.cluster == "us2"
+
+
+def test_pusher_client_init():
+    client = PusherClient("my_key")
+
+    assert client.host == "ws.pusherapp.com"
