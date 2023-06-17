@@ -8,7 +8,7 @@ from typing import Any
 
 from typing_extensions import Self
 
-from . import __version__, _type_validation
+from . import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +48,6 @@ class PusherClientOptions:
         Returns:
             Self: The PusherClientOptions.
         """
-        for key, value in options.items():
-            if (type_hint := cls.__annotations__.get(key)) is not None:
-                _type_validation.validate_type(value, type_hint)
         return cls(**options)
 
 
