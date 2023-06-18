@@ -1,40 +1,125 @@
 """Test PusherClient class."""
 # pylint: disable=missing-function-docstring
 
-from aiopusher.pusher_client import PusherClientOptions, PusherClient
+from __future__ import annotations
+
+from typing import Any
+
+import pytest
+
+from aiopusher import __version__ as aiopusher_version
+from aiopusher.pusher_client import PusherClient, PusherClientOptions
+
+DEFAULT_HOST = "ws.pusherapp.com"
+CUSTOM_HOST = "example.com"
+CLUSTER = "us2"
+HOST_WITH_CLUSTER = f"ws-{CLUSTER}.pusher.com"
+TEST_KEY = "my_key"
+CLIENT_ID = "Aiopusher"
 
 
-def test_pusher_client_init():
-    client = PusherClient("my_key")
+@pytest.fixture(name="default_pusher_client")
+def fixture_default_pusher_client():
+    return PusherClient(TEST_KEY)
 
-    assert client.host == "ws.pusherapp.com"
+
+@pytest.fixture(name="pusher_client_with_options")
+def fixture_pusher_client_with_options():
+    return PusherClient(TEST_KEY, options=PusherClientOptions(cluster=CLUSTER))
 
 
-def test_pusher_client_options_from_dict():
-    options = {
-        "cluster": "us2",
-        "secure": True,
-        "secret": "my_secret",
-        "auth_endpoint": "my_endpoint",
-        "auth_endpoint_headers": {"key": "value"},
-        "user_data": {"key": "value"},
-        "log_level": 10,
-        "daemon": True,
-        "reconnect_interval": 10,
-        "custom_host": "my_host",
-        "port": 8000,
-        "auto_sub": False,
-        "http_proxy_host": "proxy_host",
-        "http_proxy_port": 8080,
-        "http_no_proxy": "no_proxy",
-        "http_proxy_auth": "proxy_auth",
-    }
+@pytest.fixture(name="pusher_client_custom_host")
+def fixture_pusher_client_custom_host():
+    return PusherClient(TEST_KEY, options=PusherClientOptions(custom_host=CUSTOM_HOST))
 
-    pusher_client_options = PusherClientOptions.from_dict(options)
 
-    for key, value in options.items():
+def test_init_default_options(default_pusher_client: PusherClient):
+    assert default_pusher_client.host == DEFAULT_HOST
+    assert default_pusher_client.client_id == CLIENT_ID
+    assert default_pusher_client.options.cluster is None
+
+
+def test_init_with_options(pusher_client_with_options: PusherClient):
+    assert pusher_client_with_options.host == HOST_WITH_CLUSTER
+    assert pusher_client_with_options.options.cluster == CLUSTER
+
+
+@pytest.mark.parametrize(
+    "options_dict, expected_attributes",
+    [
+        (
+            {"cluster": CLUSTER, "secure": True, "secret": "my_secret"},
+            {"cluster": CLUSTER, "secure": True, "secret": "my_secret"},
+        ),
+        ({}, {}),
+    ],
+)
+def test_init_options_from_dict(
+    options_dict: dict[str, Any], expected_attributes: dict[str, Any]
+):
+    """Test initialization of PusherClientOptions from a dictionary."""
+    pusher_client_options = PusherClientOptions.from_dict(options_dict)
+
+    for key, value in expected_attributes.items():
         assert getattr(pusher_client_options, key) == value
 
-    client = PusherClient("my_key", options=pusher_client_options)
 
-    assert client.options.cluster == "us2"
+def test_init_custom_host(pusher_client_custom_host: PusherClient):
+    assert pusher_client_custom_host.host == DEFAULT_HOST
+    assert pusher_client_custom_host.options.custom_host == CUSTOM_HOST
+
+
+@pytest.mark.parametrize(
+    "custom_host, secure, port, expected_url",
+    [
+        (
+            None,
+            True,
+            None,
+            f"wss://{DEFAULT_HOST}:443/app/{TEST_KEY}?client={PusherClient.client_id}"
+            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+        ),
+        (
+            None,
+            False,
+            None,
+            f"ws://{DEFAULT_HOST}:80/app/{TEST_KEY}?client={PusherClient.client_id}"
+            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+        ),
+        (
+            CUSTOM_HOST,
+            True,
+            None,
+            f"wss://{CUSTOM_HOST}:443/app/{TEST_KEY}?client={PusherClient.client_id}"
+            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+        ),
+        (
+            CUSTOM_HOST,
+            False,
+            None,
+            f"ws://{CUSTOM_HOST}:80/app/{TEST_KEY}?client={PusherClient.client_id}"
+            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+        ),
+        (
+            None,
+            True,
+            8080,
+            f"wss://{DEFAULT_HOST}:8080/app/{TEST_KEY}?client={PusherClient.client_id}"
+            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+        ),
+        (
+            CUSTOM_HOST,
+            False,
+            8080,
+            f"ws://{CUSTOM_HOST}:8080/app/{TEST_KEY}?client={PusherClient.client_id}"
+            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+        ),
+    ],
+)
+def test_build_url(custom_host: str, secure: bool, port: int, expected_url: str):
+    """Test _build_url method. Check that the url is built correctly based on
+    the custom_host, secure and port options.
+    """
+    options = PusherClientOptions(custom_host=custom_host, secure=secure, port=port)
+    client = PusherClient(TEST_KEY, options=options)
+    assert client._build_url() == expected_url  # type: ignore # pylint: disable=protected-access

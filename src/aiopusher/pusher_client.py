@@ -106,8 +106,8 @@ class PusherClient:
         # Example URL: ws://ws-ap1.pusher.com:80/app/APP_KEY?client=js&version=7.0.3&protocol=5
 
         path = (
-            f"/app/{self.app_key}?client={self.client_id}",
-            "&version={__version__}&protocol={self.protocol}",
+            f"/app/{self.app_key}?client={self.client_id}"
+            f"&version={__version__}&protocol={self.protocol}"
         )
 
         proto = "wss" if self.options.secure else "ws"
