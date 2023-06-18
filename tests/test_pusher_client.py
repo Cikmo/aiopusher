@@ -4,6 +4,12 @@
 from aiopusher.pusher_client import PusherClientOptions, PusherClient
 
 
+def test_pusher_client_init():
+    client = PusherClient("my_key")
+
+    assert client.host == "ws.pusherapp.com"
+
+
 def test_pusher_client_options_from_dict():
     options = {
         "cluster": "us2",
@@ -32,9 +38,3 @@ def test_pusher_client_options_from_dict():
     client = PusherClient("my_key", options=pusher_client_options)
 
     assert client.options.cluster == "us2"
-
-
-def test_pusher_client_init():
-    client = PusherClient("my_key")
-
-    assert client.host == "ws.pusherapp.com"
