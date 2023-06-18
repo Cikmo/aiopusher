@@ -34,12 +34,14 @@ def fixture_pusher_client_custom_host():
 
 
 def test_init_default_options(default_pusher_client: PusherClient):
+    """Tests initialization with default options."""
     assert default_pusher_client.host == DEFAULT_HOST
     assert default_pusher_client.client_id == CLIENT_ID
     assert default_pusher_client.options.cluster is None
 
 
 def test_init_with_options(pusher_client_with_options: PusherClient):
+    """Tests initialization with specific options."""
     assert pusher_client_with_options.host == HOST_WITH_CLUSTER
     assert pusher_client_with_options.options.cluster == CLUSTER
 
@@ -65,6 +67,7 @@ def test_init_options_from_dict(
 
 
 def test_init_custom_host(pusher_client_custom_host: PusherClient):
+    """Tests initialization with a custom host."""
     assert pusher_client_custom_host.host == DEFAULT_HOST
     assert pusher_client_custom_host.options.custom_host == CUSTOM_HOST
 
