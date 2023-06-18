@@ -90,24 +90,6 @@ class PusherClient:
         # else:
         #     reconnect_handler = None
 
-    # --- Boilerplate ---
-
-    def __repr__(self) -> str:
-        return f"PusherClient(app_key={self.app_key}, " f"options={repr(self.options)})"
-
-    def __str__(self) -> str:
-        return f"App key: {self.app_key}, " f"Options: {self.options.__dict__}"
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, PusherClient):
-            return NotImplemented
-        return self.app_key == other.app_key and self.options == other.options
-
-    def __hash__(self) -> int:
-        return hash((self.app_key, self.options))
-
-    # --- End of boilerplate ---
-
     async def connect(self) -> None:
         """Connect to Pusher."""
 
