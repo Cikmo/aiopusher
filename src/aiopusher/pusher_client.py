@@ -102,9 +102,34 @@ class PusherClient:
     async def unsubscribe(self, channel_name: str) -> None:
         """Unsubscribe from a channel."""
 
-    def _validate_options(self, options: PusherClientOptions) -> None:
-        if options.secure and options.port is not None and options.port != 443:
-            raise ValueError("Port must be 443 when secure is True")
+    def _build_url(self):
+        """Build the connection URL."""
+
+        # Example URL: ws://ws-ap1.pusher.com:80/app/APP_KEY?client=js&version=7.0.3&protocol=5
+
+        path = f"/app/{self.app_key}?client={self.client_id}&version={__version__}&protocol={self.protocol}"
+
+        proto = "wss" if self.options.secure else "ws"
+
+        host = self.options.custom_host or self.host
+        if not self.options.port:
+            self.options.port = 443 if self.options.secure else 80
+
+        return f"{proto}://{host}:{self.options.port}{path}"
+
+    @staticmethod
+    def validate_options(options: PusherClientOptions) -> None:
+        """Validate the PusherClientOptions. This method is called
+        when the PusherClient is initialised.
+
+        Args:
+            options: The PusherClientOptions.
+
+        Raises:
+            ValueError: If the options are invalid.
+        """
+        if options.secure and options.port is None:
+            raise ValueError("Port must be specified when secure is True")
         if not options.secure and options.port is not None and options.port == 443:
             raise ValueError("Port must not be 443 when secure is False")
 
@@ -121,18 +146,3 @@ class PusherClient:
             raise ValueError(
                 "http_proxy_host must be specified when http_proxy_port or http_proxy_auth is set"
             )
-
-    def _build_url(self):
-        """Build the connection URL."""
-
-        # Example URL: ws://ws-ap1.pusher.com:80/app/APP_KEY?client=js&version=7.0.3&protocol=5
-
-        path = f"/app/{self.app_key}?client={self.client_id}&version={__version__}&protocol={self.protocol}"
-
-        proto = "wss" if self.options.secure else "ws"
-
-        host = self.options.custom_host or self.host
-        if not self.options.port:
-            self.options.port = 443 if self.options.secure else 80
-
-        return f"{proto}://{host}:{self.options.port}{path}"
