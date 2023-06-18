@@ -74,7 +74,7 @@ class PusherClient:
         if options is None:
             options = PusherClientOptions()
 
-        self._validate_options(options)
+        self.validate_options(options)
 
         if options.cluster:
             self.host = f"ws-{options.cluster}.pusher.com"
@@ -107,7 +107,10 @@ class PusherClient:
 
         # Example URL: ws://ws-ap1.pusher.com:80/app/APP_KEY?client=js&version=7.0.3&protocol=5
 
-        path = f"/app/{self.app_key}?client={self.client_id}&version={__version__}&protocol={self.protocol}"
+        path = (
+            f"/app/{self.app_key}?client={self.client_id}",
+            "&version={__version__}&protocol={self.protocol}",
+        )
 
         proto = "wss" if self.options.secure else "ws"
 
@@ -121,6 +124,12 @@ class PusherClient:
     def validate_options(options: PusherClientOptions) -> None:
         """Validate the PusherClientOptions. This method is called
         when the PusherClient is initialised.
+
+        The following checks are performed:
+        - If secure is True, port must be specified.
+        - If secure is False, port must not be 443.
+        - If http_proxy_host or http_proxy_auth is set, http_proxy_port must be specified.
+        - If http_proxy_port or http_proxy_auth is set, http_proxy_host must be specified.
 
         Args:
             options: The PusherClientOptions.
