@@ -41,3 +41,9 @@ jobs:
 
     - name: Run Tests
       run: poetry run pytest ./tests
+      env:
+        PUSHER_APP_ID: ${{ secrets.PUSHER_APP_ID }}
+        PUSHER_KEY: ${{ secrets.PUSHER_KEY }}
+        PUSHER_SECRET: ${{ secrets.PUSHER_SECRET }}
+        PUSHER_CLUSTER: ${{ secrets.PUSHER_CLUSTER }}
+        DONT_USE_ENV_FILE: 'true'
