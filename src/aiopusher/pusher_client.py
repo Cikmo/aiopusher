@@ -84,10 +84,24 @@ class PusherClient:
         self.channels = {}
         self.url = self._build_url()
 
-        # if auto_sub:
-        #     reconnect_handler = self._reconnect_handler
-        # else:
-        #     reconnect_handler = None
+        reconnect_handler = self._reconnect_handler if options.auto_sub else None  # type: ignore # pylint: disable=unused-variable
+
+        # self.connection = Connection(
+        #     self._connection_handler,
+        #     self.url,
+        #     reconnect_handler=reconnect_handler,
+        #     log_level=options.log_level,
+        #     daemon=options.daemon,
+        #     reconnect_interval=options.reconnect_interval,
+        #     socket_kwargs=dict(
+        #         http_proxy_host=options.http_proxy_host,
+        #         http_proxy_port=options.http_proxy_port,
+        #         http_no_proxy=options.http_no_proxy,
+        #         http_proxy_auth=options.http_proxy_auth,
+        #         ping_timeout=100,
+        #     ),
+        #     # **thread_kwargs,
+        # )
 
     @property
     def app_key_as_bytes(self) -> bytes:
@@ -120,6 +134,28 @@ class PusherClient:
 
     async def unsubscribe(self, channel_name: str) -> None:
         """Unsubscribe from a channel."""
+
+    def _connection_handler(
+        self, event_name: str, data: dict[str, Any], channel_name: str
+    ):
+        """Handle incoming data.
+
+        :param str event_name: Name of the event.
+        :param Any data: Data received.
+        :param str channel_name: Name of the channel this event and data belongs to.
+        """
+        # if channel_name in self.channels:
+        #     self.channels[channel_name]._handle_event(event_name, data)
+
+    def _reconnect_handler(self):
+        """Handle a reconnect."""
+        # for channel_name, channel in self.channels.items():
+        #     data = {'channel': channel_name}
+
+        #     if channel.auth:
+        #         data['auth'] = channel.auth
+
+        #     self.connection.send_event('pusher:subscribe', data)
 
     def _build_url(self):
         """Build the connection URL."""
