@@ -26,7 +26,8 @@ from dotenv import load_dotenv
 
 # load environment variables. If DONT_USE_ENV_FILE is set to True, then the
 # environment variables will be loaded from the environment variables directly
-if not os.getenv("DONT_USE_ENV_FILE"):
+use_env_file = os.getenv("DONT_USE_ENV_FILE")
+if not use_env_file or use_env_file.lower() != "true":
     load_dotenv(dotenv_path="tests/.test.env")
 
 
