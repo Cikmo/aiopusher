@@ -121,7 +121,9 @@ def test_init_custom_host(pusher_client_custom_host: PusherClient):
         ),
     ],
 )
-def test_build_url(custom_host: str, secure: bool, port: int, expected_url: str):
+def test_build_url(
+    custom_host: str | None, secure: bool, port: int | None, expected_url: str
+):
     """Test _build_url method. Check that the url is built correctly based on
     the custom_host, secure and port options.
     """

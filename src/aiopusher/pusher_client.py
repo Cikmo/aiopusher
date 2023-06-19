@@ -54,10 +54,6 @@ class PusherClientOptions:
 class PusherClient:
     """The PusherClient class."""
 
-    # pylint: disable=too-many-instance-attributes
-    # For now, we'll do it this way. Perhaps later we'll move some of these to
-    # some option classes or something.
-
     host = "ws.pusherapp.com"
     client_id = "Aiopusher"
     protocol = 6
@@ -83,29 +79,15 @@ class PusherClient:
             self.host = f"ws-{options.cluster}.pusher.com"
 
         self.app_key = app_key
-        self.secret = options.secret or ""
-        self.auth_endpoint = options.auth_endpoint
-        self.auth_endpoint_headers = options.auth_endpoint_headers or {}
+        self.options = options
 
-        self.user_data = options.user_data or {}
+        self.channels = {}
+        self.url = self._build_url()
 
-        self.channels: dict[str, Any] = {}  # TODO: Channel type pylint: disable=fixme
-        self.url = self._build_url(options.secure, options.port, options.custom_host)
-
-        # TODO: Implement Connection class pylint: disable=fixme
-        # reconnect_handler = self._reconnect_handler if options.auto_sub else None
-
-        # self.connection = Connection(self._connection_handler, self.url,
-        #                              reconnect_handler=reconnect_handler,
-        #                              log_level=log_level,
-        #                              daemon=daemon,
-        #                              reconnect_interval=reconnect_interval,
-        #                              socket_kwargs=dict(http_proxy_host=http_proxy_host,
-        #                                                 http_proxy_port=http_proxy_port,
-        #                                                 http_no_proxy=http_no_proxy,
-        #                                                 http_proxy_auth=http_proxy_auth,
-        #                                                 ping_timeout=100),
-        #                              **thread_kwargs)
+        # if auto_sub:
+        #     reconnect_handler = self._reconnect_handler
+        # else:
+        #     reconnect_handler = None
 
     @property
     def app_key_as_bytes(self) -> bytes:
@@ -117,12 +99,14 @@ class PusherClient:
         )
 
     @property
-    def secret_as_bytes(self) -> bytes:
-        """The app secret as bytes."""
+    def secret_as_bytes(self) -> bytes | None:
+        """The secret as bytes."""
         return (
-            self.secret
-            if isinstance(self.secret, bytes)
-            else self.secret.encode("UTF-8")
+            self.options.secret
+            if isinstance(self.options.secret, bytes)
+            else self.options.secret.encode("UTF-8")
+            if self.options.secret
+            else None
         )
 
     async def connect(self) -> None:
@@ -137,22 +121,7 @@ class PusherClient:
     async def unsubscribe(self, channel_name: str) -> None:
         """Unsubscribe from a channel."""
 
-    async def _reconnect_handler(self):
-        """Handle a reconnect."""
-        # for channel_name, channel in self.channels.items():
-        #     data = {'channel': channel_name}
-
-        #     if channel.auth:
-        #         data['auth'] = channel.auth
-
-        #     self.connection.send_event('pusher:subscribe', data)
-
-    def _build_url(
-        self,
-        secure: bool = True,
-        port: int | None = None,
-        custom_host: str | None = None,
-    ):
+    def _build_url(self):
         """Build the connection URL."""
 
         # Example URL: ws://ws-ap1.pusher.com:80/app/APP_KEY?client=js&version=7.0.3&protocol=5
@@ -162,10 +131,10 @@ class PusherClient:
             f"&version={__version__}&protocol={self.protocol}"
         )
 
-        proto = "wss" if secure else "ws"
+        proto = "wss" if self.options.secure else "ws"
 
-        host = custom_host or self.host
-        if not port:
-            port = 443 if secure else 80
+        host = self.options.custom_host or self.host
+        if not self.options.port:
+            self.options.port = 443 if self.options.secure else 80
 
-        return f"{proto}://{host}:{port}{path}"
+        return f"{proto}://{host}:{self.options.port}{path}"
