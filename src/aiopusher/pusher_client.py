@@ -56,7 +56,7 @@ class PusherClient:
 
     DEFAULT_HOST = "ws.pusherapp.com"
     CLIENT_ID = "Aiopusher"
-    PROTOCOL = 6
+    PROTOCOL = 7
 
     def __init__(
         self,
