@@ -21,9 +21,9 @@ class PusherClientOptions:
 
     # pylint: disable=too-many-instance-attributes
 
+    secret: str | None = None
     cluster: str | None = None
     secure: bool = True
-    secret: str | None = None
     auth_endpoint: str | None = None
     auth_endpoint_headers: dict[str, str] | None = None
     user_data: dict[str, str] | None = None
@@ -54,9 +54,9 @@ class PusherClientOptions:
 class PusherClient:
     """The PusherClient class."""
 
-    host = "ws.pusherapp.com"
-    client_id = "Aiopusher"
-    protocol = 6
+    DEFAULT_HOST = "ws.pusherapp.com"
+    CLIENT_ID = "Aiopusher"
+    PROTOCOL = 6
 
     def __init__(
         self,
@@ -75,8 +75,12 @@ class PusherClient:
             options = PusherClientOptions()
 
         # If a cluster is specified, use it to build the host. Otherwise, use the default.
-        if options.cluster:
-            self.host = f"ws-{options.cluster}.pusher.com"
+        # If a custom host is specified, use it instead of the default.
+        self.host = (
+            f"ws-{options.cluster}.pusher.com"
+            if options.cluster
+            else options.custom_host or self.DEFAULT_HOST
+        )
 
         self.app_key = app_key
         self.options = options
@@ -163,14 +167,13 @@ class PusherClient:
         # Example URL: ws://ws-ap1.pusher.com:80/app/APP_KEY?client=js&version=7.0.3&protocol=5
 
         path = (
-            f"/app/{self.app_key}?client={self.client_id}"
-            f"&version={__version__}&protocol={self.protocol}"
+            f"/app/{self.app_key}?client={self.CLIENT_ID}"
+            f"&version={__version__}&protocol={self.PROTOCOL}"
         )
 
         proto = "wss" if self.options.secure else "ws"
 
-        host = self.options.custom_host or self.host
         if not self.options.port:
             self.options.port = 443 if self.options.secure else 80
 
-        return f"{proto}://{host}:{self.options.port}{path}"
+        return f"{proto}://{self.host}:{self.options.port}{path}"

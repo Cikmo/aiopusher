@@ -36,14 +36,14 @@ def fixture_pusher_client_custom_host():
 def test_init_default_options(default_pusher_client: PusherClient):
     """Tests initialization with default options."""
     assert default_pusher_client.host == DEFAULT_HOST
-    assert default_pusher_client.client_id == CLIENT_ID
+    assert default_pusher_client.CLIENT_ID == CLIENT_ID
     assert default_pusher_client.app_key == TEST_KEY
 
 
 def test_init_with_options(pusher_client_with_options: PusherClient):
     """Tests initialization with specific options."""
     assert pusher_client_with_options.host == HOST_WITH_CLUSTER
-    assert pusher_client_with_options.client_id == CLIENT_ID
+    assert pusher_client_with_options.CLIENT_ID == CLIENT_ID
     assert pusher_client_with_options.app_key == TEST_KEY
 
 
@@ -69,9 +69,8 @@ def test_init_options_from_dict(
 
 def test_init_custom_host(pusher_client_custom_host: PusherClient):
     """Tests initialization with a custom host."""
-    assert pusher_client_custom_host.host == DEFAULT_HOST
-    assert pusher_client_custom_host.client_id == CLIENT_ID
-    assert pusher_client_custom_host.app_key == TEST_KEY
+    assert pusher_client_custom_host.DEFAULT_HOST == DEFAULT_HOST
+    assert pusher_client_custom_host.options.custom_host == CUSTOM_HOST
 
 
 @pytest.mark.parametrize(
@@ -81,43 +80,43 @@ def test_init_custom_host(pusher_client_custom_host: PusherClient):
             None,
             True,
             None,
-            f"wss://{DEFAULT_HOST}:443/app/{TEST_KEY}?client={PusherClient.client_id}"
-            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+            f"wss://{DEFAULT_HOST}:443/app/{TEST_KEY}?client={PusherClient.CLIENT_ID}"
+            f"&version={aiopusher_version}&protocol={PusherClient.PROTOCOL}",
         ),
         (
             None,
             False,
             None,
-            f"ws://{DEFAULT_HOST}:80/app/{TEST_KEY}?client={PusherClient.client_id}"
-            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+            f"ws://{DEFAULT_HOST}:80/app/{TEST_KEY}?client={PusherClient.CLIENT_ID}"
+            f"&version={aiopusher_version}&protocol={PusherClient.PROTOCOL}",
         ),
         (
             CUSTOM_HOST,
             True,
             None,
-            f"wss://{CUSTOM_HOST}:443/app/{TEST_KEY}?client={PusherClient.client_id}"
-            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+            f"wss://{CUSTOM_HOST}:443/app/{TEST_KEY}?client={PusherClient.CLIENT_ID}"
+            f"&version={aiopusher_version}&protocol={PusherClient.PROTOCOL}",
         ),
         (
             CUSTOM_HOST,
             False,
             None,
-            f"ws://{CUSTOM_HOST}:80/app/{TEST_KEY}?client={PusherClient.client_id}"
-            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+            f"ws://{CUSTOM_HOST}:80/app/{TEST_KEY}?client={PusherClient.CLIENT_ID}"
+            f"&version={aiopusher_version}&protocol={PusherClient.PROTOCOL}",
         ),
         (
             None,
             True,
             8080,
-            f"wss://{DEFAULT_HOST}:8080/app/{TEST_KEY}?client={PusherClient.client_id}"
-            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+            f"wss://{DEFAULT_HOST}:8080/app/{TEST_KEY}?client={PusherClient.CLIENT_ID}"
+            f"&version={aiopusher_version}&protocol={PusherClient.PROTOCOL}",
         ),
         (
             CUSTOM_HOST,
             False,
             8080,
-            f"ws://{CUSTOM_HOST}:8080/app/{TEST_KEY}?client={PusherClient.client_id}"
-            f"&version={aiopusher_version}&protocol={PusherClient.protocol}",
+            f"ws://{CUSTOM_HOST}:8080/app/{TEST_KEY}?client={PusherClient.CLIENT_ID}"
+            f"&version={aiopusher_version}&protocol={PusherClient.PROTOCOL}",
         ),
     ],
 )
