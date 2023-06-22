@@ -36,7 +36,10 @@ class Connection:
         self,
         url: str,
         aiohttp_session: aiohttp.ClientSession | None = None,
+        reconnect_handler: Callable[[], Awaitable[None]] | None = None,
+        reconnect_interval: int = 10,
         server_ping_interval: int = 120,
+        client_ping_interval: int | None = None,
     ) -> None:
         """Initialise the connection.
 
@@ -45,6 +48,8 @@ class Connection:
             aiohttp_session: The aiohttp session to use for the connection.
             If not provided, a new session will be created.
             server_ping_interval: The interval at which the server sends ping messages
+            client_ping_interval: The interval at which ping messages are sent to the server.
+            None means no ping messages are sent.
         """
         self.aiohttp_session = (
             aiohttp.ClientSession() if aiohttp_session is None else aiohttp_session
@@ -52,12 +57,15 @@ class Connection:
         self.url = url
         self.event_callbacks: EventCallbacks = defaultdict(list)
         self.socket: aiohttp.ClientWebSocketResponse | None = None
+        self.reconnect_handler = reconnect_handler or (lambda: None)
 
         self._state: ConnectionState = ConnectionState.INITIALISED
 
+        self._reconnect_interval = reconnect_interval
         self._receive_timeout = server_ping_interval
+        self._heartbeat_interval = client_ping_interval
 
-        self._should_reconnect = False
+        self._should_disconnect = False
         self._should_reconnect = False
 
         self.bind("pusher:connection_established", self._on_connection_established)
@@ -84,8 +92,8 @@ class Connection:
             # set to True.
             async with self.aiohttp_session.ws_connect(  # type: ignore
                 self.url,
-                heartbeat=60,
-                receive_timeout=self._receive_timeout,
+                receive_timeout=2,
+                heartbeat=self._heartbeat_interval,
                 autoping=True,
             ) as socket:
                 self._state = ConnectionState.CONNECTED
@@ -101,15 +109,34 @@ class Connection:
 
                 await self._on_close()
         except asyncio.TimeoutError:
-            logger.info("Connection: Connection timeout")
+            await self._on_timeout()
+        except Exception as err:  # pylint: disable=broad-except
+            await self._on_error(err)
+
+        while self._should_reconnect and not self._should_disconnect:
             self._state = ConnectionState.UNAVAILABLE
-            self._should_reconnect = True
+            await asyncio.sleep(self._reconnect_interval)
+            await self.connect()
+
+    async def disconnect(self) -> None:
+        """Disconnect from the socket."""
+        self._should_reconnect = False
+        self._should_disconnect = True
+        if self.socket:
+            await self.socket.close()
+
+    async def reconnect(self) -> None:
+        """Reconnect to the socket."""
+        logger.info("Connection: Reconnect in %s s", self._reconnect_interval)
+
+        self._should_reconnect = True
+        if self.socket:
+            await self.socket.close()
 
     async def _on_open(self):
         print("Connection opened")
         logger.info("Connection: Connection opened")
         await self.send_ping()
-        await self.subscribe("my-channel")
 
     async def _on_message(self, msg: str):
         params = self._parse_message(msg)
@@ -130,14 +157,17 @@ class Connection:
                 # self.event_handler(
                 #     params["event"], params.get("data"), params["channel"]
                 # )
-
-                # check if channel is "my-channel", if so, print the data
-                if params["channel"] == "my-channel":
-                    print(params.get("data"))
+                raise NotImplementedError
 
     async def _on_error(self, err: BaseException | None):
         print(f"Error occurred: {err}")
-        logger.info("Connection: Error occurred: %s", err)
+        logger.exception("Connection: Unhandled exception occurred")
+        self._state = ConnectionState.FAILED
+        self._should_reconnect = True
+
+    async def _on_timeout(self):
+        print("Connection: Did not receive any data in time.  Reconnecting.")
+        logger.info("Connection: Did not receive any data in time.  Reconnecting.")
         self._state = ConnectionState.FAILED
         self._should_reconnect = True
 
@@ -152,26 +182,6 @@ class Connection:
             msg: The message to parse.
         """
         return json.loads(msg)
-
-    async def subscribe(self, channel: str):
-        """Subscribe to a given channel.
-
-        Args:
-            channel: The name of the channel to subscribe to.
-
-        Raises:
-            ConnectionError: If not connected.
-        """
-        logger.info(f"Connection: subscribing to channel {channel}")
-        if not self.socket:
-            raise ConnectionError("Not connected.")
-
-        try:
-            await self.socket.send_json(
-                {"event": "pusher:subscribe", "data": {"channel": channel}}
-            )
-        except aiohttp.WebSocketError as err:
-            logger.error(f"Failed to subscribe to channel {channel}: {err}")
 
     async def send_ping(self):
         """Send a ping to the server.
@@ -194,45 +204,18 @@ class Connection:
         Args:
             data: The data received with the event.
         """
-        print("Connection: Connection established")
+        if self._should_reconnect:
+            # Since we've opened a connection, we don't need to try to reconnect
+            self._should_reconnect = False
 
-    ###
-    # async def connect(self) -> None:
-    #     """Connect to the socket."""
-    #     try:
-    #         self._ws = await self.aiohttp_session.ws_connect(  # type: ignore
-    #             self.url, max_msg_size=0, autoclose=False, timeout=30
-    #         )
-    #         # self.connected = True
-    #     except aiohttp.ClientError as err:
-    #         raise ConnectionError("Error connecting to Pusher") from err
+            self.reconnect_handler()
 
-    # async def disconnect(self) -> None:
-    #     """Disconnect."""
-    #     if self._ws is not None:
-    #         await self._ws.close()
-    #         self._ws = None
-    #         # self.connected = False
+            logger.info("Connection: Established connection after reconnecting")
+            print("Connection: Established connection after reconnecting")
+        else:
+            logger.info("Connection: Established connection")
 
-    # async def reconnect(self) -> None:
-    #     """Reconnect."""
-    #     await self.disconnect()
-    #     await self.connect()
-
-    # async def send(self, message: Any) -> None:
-    #     """Send a message."""
-    #     if self.connected:
-    #         await self._ws.send_str(message)  # type: ignore
-    #     else:
-    #         raise ConnectionError("Not connected to the server.")
-
-    # async def receive(self) -> Any:
-    #     """Receive a message."""
-    #     if self.connected:
-    #         msg = await self._ws.receive_str()  # type: ignore
-    #         return msg
-    #     else:
-    #         raise ConnectionError("Not connected to the server.")
+            print("Connection: Connection established")
 
 
 async def test_connection():
@@ -246,3 +229,24 @@ async def test_connection():
 
 
 asyncio.run(test_connection())
+
+
+# async def subscribe(self, channel: str):
+#     """Subscribe to a given channel.
+
+#     Args:
+#         channel: The name of the channel to subscribe to.
+
+#     Raises:
+#         ConnectionError: If not connected.
+#     """
+#     logger.info("Connection: subscribing to channel %s", channel)
+#     if not self.socket:
+#         raise ConnectionError("Not connected.")
+
+#     try:
+#         await self.socket.send_json(
+#             {"event": "pusher:subscribe", "data": {"channel": channel}}
+#         )
+#     except aiohttp.WebSocketError as err:
+#         logger.error("Failed to subscribe to channel %s: %s", channel, err)
