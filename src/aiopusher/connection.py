@@ -59,6 +59,8 @@ class Connection:
         self.socket: aiohttp.ClientWebSocketResponse | None = None
         self.reconnect_handler = reconnect_handler or (lambda: None)
 
+        self._socket_id: str | None = None
+
         self._state: ConnectionState = ConnectionState.INITIALISED
 
         self._reconnect_interval = reconnect_interval
@@ -92,11 +94,10 @@ class Connection:
             # set to True.
             async with self.aiohttp_session.ws_connect(  # type: ignore
                 self.url,
-                receive_timeout=2,
+                receive_timeout=self._receive_timeout,
                 heartbeat=self._heartbeat_interval,
                 autoping=True,
             ) as socket:
-                self._state = ConnectionState.CONNECTED
                 self.socket = socket
 
                 await self._on_open()
@@ -198,12 +199,17 @@ class Connection:
         except aiohttp.WebSocketError as err:
             logger.error("Failed send ping: %s", err)
 
-    async def _on_connection_established(self, data: Dict[str, Any]):
+    async def _on_connection_established(self, data: str):
         """Handle a connection established event.
 
         Args:
             data: The data received with the event.
         """
+        data_dict = self._parse_message(data)
+        self._socket_id = data_dict["socket_id"]
+
+        self._state = ConnectionState.CONNECTED
+
         if self._should_reconnect:
             # Since we've opened a connection, we don't need to try to reconnect
             self._should_reconnect = False
